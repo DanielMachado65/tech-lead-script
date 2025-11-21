@@ -1,134 +1,120 @@
 #!/usr/bin/env node
 
 /**
- * Rotação Híbrida - Sistema de Alocação para Sustentação
- * 
- * Este script gerencia a rotação de pessoas para sustentação,
- * alocando cada pessoa com 20% de sua capacidade.
- * 
- * Equipe: Heitor, Eduardo, Laercio, Fernanda, Nathan
+ * Rotação Híbrida - Sustentação (20%)
+ *
+ * Modelo:
+ * - 1 Ponto Focal (PF) por semana (round-robin)
+ * - 2 Apoios: próximas duas pessoas na rotação
+ *
+ * Equipe: Heitor, Laercio, Fernanda, Nathan, Eduardo
+ *
+ * Uso:
+ *   node rotacao-hibrida.js --weeks 8
+ *   node rotacao-hibrida.js --weeks 8 --start Heitor
  */
 
 class RotacaoHibrida {
-  constructor() {
-    this.pessoas = [
-      { nome: 'Heitor', capacidadeAlocada: 0 },
-      { nome: 'Eduardo', capacidadeAlocada: 0 },
-      { nome: 'Laercio', capacidadeAlocada: 0 },
-      { nome: 'Fernanda', capacidadeAlocada: 0 },
-      { nome: 'Nathan', capacidadeAlocada: 0 }
-    ];
-    this.percentualAlocacao = 20; // 20% da capacidade
-    this.rotacaoAtual = 0;
+  constructor(pessoas) {
+    this.pessoas = pessoas;
   }
 
   /**
-   * Retorna a próxima pessoa na rotação
+   * Gera a escala híbrida
+   * @param {number} weeks - número de semanas a gerar
+   * @param {string} startName - quem começa como PF
    */
-  proximaPessoa() {
-    const pessoa = this.pessoas[this.rotacaoAtual];
-    this.rotacaoAtual = (this.rotacaoAtual + 1) % this.pessoas.length;
-    return pessoa;
-  }
+  gerarEscala({
+    weeks = this.pessoas.length,
+    startName = this.pessoas[0],
+  } = {}) {
+    const n = this.pessoas.length;
 
-  /**
-   * Aloca uma pessoa para sustentação
-   */
-  alocarSustentacao() {
-    // Tenta encontrar uma pessoa com capacidade disponível
-    let tentativas = 0;
-    const maxTentativas = this.pessoas.length;
-    
-    while (tentativas < maxTentativas) {
-      const pessoa = this.proximaPessoa();
-      const capacidadeRestante = 100 - pessoa.capacidadeAlocada;
-      
-      if (capacidadeRestante >= this.percentualAlocacao) {
-        pessoa.capacidadeAlocada += this.percentualAlocacao;
-        console.log(`✓ ${pessoa.nome} alocado(a) para sustentação (${this.percentualAlocacao}% de capacidade)`);
-        console.log(`  Capacidade total alocada: ${pessoa.capacidadeAlocada}%\n`);
-        return pessoa;
-      }
-      
-      tentativas++;
+    let startIndex = this.pessoas.indexOf(startName);
+    if (startIndex === -1) startIndex = 0;
+
+    const escala = [];
+
+    for (let w = 0; w < weeks; w++) {
+      const focalIndex = (startIndex + w) % n;
+      const focal = this.pessoas[focalIndex];
+
+      // Apoios são as próximas duas pessoas na fila
+      const apoio1 = this.pessoas[(focalIndex + 1) % n];
+      const apoio2 = this.pessoas[(focalIndex + 2) % n];
+
+      escala.push({
+        semana: w + 1,
+        pontoFocal: focal,
+        apoios: [apoio1, apoio2],
+      });
     }
-    
-    // Se chegou aqui, toda a equipe está com capacidade máxima
-    console.log(`✗ Toda a equipe está com capacidade máxima (100%). Não é possível alocar mais sustentações.\n`);
-    return null;
+
+    return escala;
   }
 
   /**
-   * Libera alocação de uma pessoa
+   * Imprime escala no console
    */
-  liberarAlocacao(nomePessoa) {
-    const pessoa = this.pessoas.find(p => p.nome === nomePessoa);
-    if (pessoa && pessoa.capacidadeAlocada >= this.percentualAlocacao) {
-      pessoa.capacidadeAlocada -= this.percentualAlocacao;
-      console.log(`✓ ${pessoa.nome} liberado(a) de sustentação (${this.percentualAlocacao}% de capacidade)`);
-      console.log(`  Capacidade total alocada: ${pessoa.capacidadeAlocada}%\n`);
-      return true;
-    }
-    return false;
-  }
+  imprimirEscala(escala) {
+    console.log("\n═══════════════════════════════════════════════════");
+    console.log("      ESCALA HÍBRIDA - SUSTENTAÇÃO (20%)          ");
+    console.log("═══════════════════════════════════════════════════\n");
 
-  /**
-   * Exibe o status atual da equipe
-   */
-  exibirStatus() {
-    console.log('═══════════════════════════════════════════════════');
-    console.log('      STATUS DA ROTAÇÃO HÍBRIDA - SUSTENTAÇÃO      ');
-    console.log('═══════════════════════════════════════════════════\n');
-    
-    this.pessoas.forEach(pessoa => {
-      const barraCapacidade = '█'.repeat(pessoa.capacidadeAlocada / 5);
-      const barraDisponivel = '░'.repeat((100 - pessoa.capacidadeAlocada) / 5);
-      console.log(`${pessoa.nome.padEnd(12)} │ ${barraCapacidade}${barraDisponivel} ${pessoa.capacidadeAlocada}%`);
+    escala.forEach(({ semana, pontoFocal, apoios }) => {
+      console.log(
+        `Semana ${String(semana).padStart(
+          2,
+          "0"
+        )} — PF: ${pontoFocal} / Apoios: ${apoios.join(", ")}`
+      );
     });
-    
-    console.log('\n═══════════════════════════════════════════════════\n');
+
+    console.log("\n═══════════════════════════════════════════════════\n");
   }
 
   /**
-   * Simula múltiplas alocações
+   * Exporta escala em Markdown (pra colar no Notion/Jira)
    */
-  simularRotacao(numeroAlocacoes = 10) {
-    console.log(`\n🔄 Simulando ${numeroAlocacoes} alocações de sustentação...\n`);
-    
-    let alocacoesRealizadas = 0;
-    for (let i = 1; i <= numeroAlocacoes; i++) {
-      console.log(`--- Alocação #${i} ---`);
-      const resultado = this.alocarSustentacao();
-      
-      if (resultado === null) {
-        console.log(`⚠️  Simulação interrompida após ${alocacoesRealizadas} alocações (equipe com capacidade máxima).\n`);
-        break;
-      }
-      
-      alocacoesRealizadas++;
-    }
-    
-    this.exibirStatus();
-    return alocacoesRealizadas;
+  exportarMarkdown(escala) {
+    const header = "| Semana | Ponto Focal | Apoios |\n|---|---|---|\n";
+    const rows = escala
+      .map(
+        ({ semana, pontoFocal, apoios }) =>
+          `| ${semana} | ${pontoFocal} | ${apoios.join(", ")} |`
+      )
+      .join("\n");
+
+    return header + rows;
   }
 }
 
-// Execução principal
+// ---------- CLI ----------
+function parseArgs(argv) {
+  const args = {};
+  for (let i = 2; i < argv.length; i++) {
+    const key = argv[i];
+    const val = argv[i + 1];
+    if (key === "--weeks") args.weeks = Number(val);
+    if (key === "--start") args.start = val;
+  }
+  return args;
+}
+
 if (require.main === module) {
-  const rotacao = new RotacaoHibrida();
-  
-  console.log('\n╔═══════════════════════════════════════════════════╗');
-  console.log('║     SISTEMA DE ROTAÇÃO HÍBRIDA - SUSTENTAÇÃO     ║');
-  console.log('╚═══════════════════════════════════════════════════╝\n');
-  
-  // Exibe status inicial
-  console.log('📊 Status inicial da equipe:\n');
-  rotacao.exibirStatus();
-  
-  // Simula rotação
-  rotacao.simularRotacao(10);
-  
-  console.log('✅ Simulação concluída!\n');
+  const pessoas = ["Heitor", "Laercio", "Fernanda", "Nathan", "Eduardo"];
+  const rotacao = new RotacaoHibrida(pessoas);
+
+  const args = parseArgs(process.argv);
+  const weeks = Number.isFinite(args.weeks) ? args.weeks : pessoas.length;
+  const startName = args.start || pessoas[0];
+
+  const escala = rotacao.gerarEscala({ weeks, startName });
+  rotacao.imprimirEscala(escala);
+
+  // Se quiser o markdown pronto no terminal também:
+  console.log("Markdown para colar no Notion/Jira:\n");
+  console.log(rotacao.exportarMarkdown(escala));
 }
 
 module.exports = RotacaoHibrida;
