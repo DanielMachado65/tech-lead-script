@@ -1,0 +1,17 @@
+{
+  "name": "tech-lead-scripts",
+  "version": "1.0.0",
+  "description": "Scripts para ajudar na função de tech lead",
+  "main": "rotacao-hibrida.js",
+  "scripts": {
+    "rotacao": "node rotacao-hibrida.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "tech-lead",
+    "automation",
+    "rotation"
+  ],
+  "author": "",
+  "license": "ISC"
+}

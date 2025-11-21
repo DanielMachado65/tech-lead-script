@@ -1,0 +1,8 @@
+services:
+  rotacao-hibrida:
+    build: ./node
+    container_name: tech-lead-rotacao-hibrida
+    volumes:
+      - ./node:/app
+    stdin_open: true
+    tty: true
