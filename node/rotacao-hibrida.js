@@ -12,11 +12,11 @@
 class RotacaoHibrida {
   constructor() {
     this.pessoas = [
-      { nome: 'Heitor', capacidadeAlocada: 0, disponivel: true },
-      { nome: 'Eduardo', capacidadeAlocada: 0, disponivel: true },
-      { nome: 'Laercio', capacidadeAlocada: 0, disponivel: true },
-      { nome: 'Fernanda', capacidadeAlocada: 0, disponivel: true },
-      { nome: 'Nathan', capacidadeAlocada: 0, disponivel: true }
+      { nome: 'Heitor', capacidadeAlocada: 0 },
+      { nome: 'Eduardo', capacidadeAlocada: 0 },
+      { nome: 'Laercio', capacidadeAlocada: 0 },
+      { nome: 'Fernanda', capacidadeAlocada: 0 },
+      { nome: 'Nathan', capacidadeAlocada: 0 }
     ];
     this.percentualAlocacao = 20; // 20% da capacidade
     this.rotacaoAtual = 0;
@@ -35,19 +35,27 @@ class RotacaoHibrida {
    * Aloca uma pessoa para sustentação
    */
   alocarSustentacao() {
-    const pessoa = this.proximaPessoa();
-    const capacidadeRestante = 100 - pessoa.capacidadeAlocada;
+    // Tenta encontrar uma pessoa com capacidade disponível
+    let tentativas = 0;
+    const maxTentativas = this.pessoas.length;
     
-    if (capacidadeRestante >= this.percentualAlocacao) {
-      pessoa.capacidadeAlocada += this.percentualAlocacao;
-      console.log(`✓ ${pessoa.nome} alocado(a) para sustentação (${this.percentualAlocacao}% de capacidade)`);
-      console.log(`  Capacidade total alocada: ${pessoa.capacidadeAlocada}%\n`);
-      return pessoa;
-    } else {
-      console.log(`✗ ${pessoa.nome} não tem capacidade disponível (${capacidadeRestante}% restante)`);
-      console.log(`  Tentando próxima pessoa...\n`);
-      return this.alocarSustentacao();
+    while (tentativas < maxTentativas) {
+      const pessoa = this.proximaPessoa();
+      const capacidadeRestante = 100 - pessoa.capacidadeAlocada;
+      
+      if (capacidadeRestante >= this.percentualAlocacao) {
+        pessoa.capacidadeAlocada += this.percentualAlocacao;
+        console.log(`✓ ${pessoa.nome} alocado(a) para sustentação (${this.percentualAlocacao}% de capacidade)`);
+        console.log(`  Capacidade total alocada: ${pessoa.capacidadeAlocada}%\n`);
+        return pessoa;
+      }
+      
+      tentativas++;
     }
+    
+    // Se chegou aqui, toda a equipe está com capacidade máxima
+    console.log(`✗ Toda a equipe está com capacidade máxima (100%). Não é possível alocar mais sustentações.\n`);
+    return null;
   }
 
   /**
@@ -87,12 +95,21 @@ class RotacaoHibrida {
   simularRotacao(numeroAlocacoes = 10) {
     console.log(`\n🔄 Simulando ${numeroAlocacoes} alocações de sustentação...\n`);
     
+    let alocacoesRealizadas = 0;
     for (let i = 1; i <= numeroAlocacoes; i++) {
       console.log(`--- Alocação #${i} ---`);
-      this.alocarSustentacao();
+      const resultado = this.alocarSustentacao();
+      
+      if (resultado === null) {
+        console.log(`⚠️  Simulação interrompida após ${alocacoesRealizadas} alocações (equipe com capacidade máxima).\n`);
+        break;
+      }
+      
+      alocacoesRealizadas++;
     }
     
     this.exibirStatus();
+    return alocacoesRealizadas;
   }
 }
 
