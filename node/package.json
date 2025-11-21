@@ -4,7 +4,10 @@
   "description": "Scripts para ajudar na função de tech lead",
   "main": "rotacao-hibrida.js",
   "scripts": {
-    "rotacao": "node rotacao-hibrida.js",
+    "rotacao": "npm run rotacao:hibrida",
+    "rotacao:hibrida": "node rotacao-hibrida.js",
+    "rotacao:round-robin": "node rotacao-round-robin.js",
+    "rotacao:diaria-rr": "node rotacao-diaria-rr.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

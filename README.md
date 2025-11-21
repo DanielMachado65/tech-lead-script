@@ -23,17 +23,25 @@ Sistema de alocação de pessoas para sustentação, distribuindo a carga em 20%
 
 ## 🐳 Como Usar com Docker
 
-### Opção 1: Docker Compose (Recomendado)
+### Execução rápida (recomendado)
+
+Use o helper `./run.sh` na raiz para rodar qualquer script Node dentro do container:
 
 ```bash
-# Executar o script de rotação
-docker compose run --rm rotacao-hibrida
+# Rotação híbrida
+./run.sh rotacao:hibrida
 
-# Ou construir e executar
-docker compose up --build
+# Round-robin simples
+./run.sh rotacao:round-robin
+
+# Round-robin diário
+./run.sh rotacao:diaria-rr
+
+# Passar argumentos adicionais ao script
+./run.sh rotacao:hibrida --help
 ```
 
-### Opção 2: Docker direto
+### Docker direto
 
 ```bash
 # Construir a imagem
