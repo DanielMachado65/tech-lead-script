@@ -6,7 +6,8 @@
   "scripts": {
     "rotacao": "npm run rotacao:hibrida",
     "rotacao:hibrida": "node rotacao-hibrida.js",
-    "rotacao:round-robin": "node rotacao-round-robin.js",
+    "rotacao:round-robin": "node rotacao-semanal-rr.js",
+    "rotacao:semanal-rr": "node rotacao-semanal-rr.js",
     "rotacao:diaria-rr": "node rotacao-diaria-rr.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
